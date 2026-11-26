@@ -48,12 +48,14 @@ http:
   port: $PORT
   baseURL: "/"
   externalUrl: "$url"
-  # Every request reaches the service through Railway's edge, which sets X-Real-IP and
-  # X-Forwarded-For; trusting the edge keeps rate limits and lockouts per visitor.
+  # Requests reach the service through Railway's edge, which rewrites X-Forwarded-For
+  # with the visitor first (a spoofed value is dropped) and adds its own hops from
+  # changing public addresses. Trusting every hop makes FileBrowser take the leftmost
+  # entry, the visitor, so rate limits and lockouts are per visitor, not per edge.
   trustProxyHeaders: true
   trustedProxies:
-    - "100.64.0.0/10"
-    - "fd00::/8"
+    - "0.0.0.0/0"
+    - "::/0"
 server:
   cacheDir: "/tmp/filebrowser-cache"
   numImageProcessors: 2
