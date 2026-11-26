@@ -21,7 +21,10 @@ find "$DATA" -xdev ! -user 1000 -exec chown 1000:1000 {} + 2>/dev/null
 PORT="${PORT:-8080}"
 case "$PORT" in '' | *[!0-9]*) log "PORT=$PORT is not a number, using 8080"; PORT=8080 ;; esac
 
-export FILEBROWSER_DATABASE_PATH="${FILEBROWSER_DATABASE_PATH:-$DATA/database.sqlite}"
+# The image's ENV points the database at /home/filebrowser/data, which is not the volume.
+case "${FILEBROWSER_DATABASE_PATH:-}" in
+  '' | /home/filebrowser/data/database.sqlite) export FILEBROWSER_DATABASE_PATH="$DATA/database.sqlite" ;;
+esac
 
 if [ -s "$DATA/config.yaml" ]; then
   export FILEBROWSER_CONFIG="$DATA/config.yaml"
